@@ -36,7 +36,15 @@ for path in os.listdir(background_input_path):
 
 # Image selector widget
 selected_image = image_select("Background choices", backgrounds)
-#st.write(selected_image)
+st.write(selected_image)
+
+# Get dimensions of the selected background image
+selected_image_width = subprocess.run(f'ffprobe -v error -select_streams v:0 -show_entries stream=width -of csv=s=x:p=0 {selected_image}', stdout=subprocess.PIPE)
+selected_image_width = selected_image_width.stdout.decode('utf-8').strip()
+
+selected_image_height = subprocess.run(f'ffprobe -v error -select_streams v:0 -show_entries stream=height -of csv=s=x:p=0 {selected_image}', stdout=subprocess.PIPE)
+selected_image_height = selected_image_height.stdout.decode('utf-8').strip()
+#st.write(selected_image_width)
 
 # Function to download the uploaded audio file
 def save_uploaded_audio(audio_file):
@@ -46,14 +54,6 @@ def save_uploaded_audio(audio_file):
 
 # Function to process an audio file to add waveform to background image creating a video
 def create_podcast(audio_upload):
-    # Get dimensions of the selected background image
-    selected_image_width = subprocess.run(f'ffprobe -v error -select_streams v:0 -show_entries stream=width -of csv=s=x:p=0 {selected_image}', stdout=subprocess.PIPE)
-    selected_image_width = selected_image_width.stdout.decode('utf-8').strip()
-
-    selected_image_height = subprocess.run(f'ffprobe -v error -select_streams v:0 -show_entries stream=height -of csv=s=x:p=0 {selected_image}', stdout=subprocess.PIPE)
-    selected_image_height = selected_image_height.stdout.decode('utf-8').strip()
-    #st.write(selected_image_width)
-    
     # Create waveform
     os.system(f'ffmpeg -i ./input/audio/{audio_upload} -filter_complex "[0:a]showwaves=s={str(selected_image_width)}x{str(int(0.5 * int(selected_image_height)))}:mode=cline:colors=White@0.9|Black@0.75:draw=full:scale=sqrt,format=rgba[v]" -map "[v]" -map 0:a -c:v png -y {waveform}')
     
