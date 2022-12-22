@@ -4,7 +4,7 @@ import os
 
 st.title("Meg\'s Cantonese Podcast Creator")
 st.write(
-    ":microphone: Upload an m4a audio file and get an image with a waveform of the audio overlaid. See the code: https://github.com/mrisdal/canto-podcast-creator"
+    ":microphone: Upload an m4a audio file and get an image with a waveform of the audio overlaid. See the code: https://github.com/mrisdal/canto-podcast-creator. Check out my Instagram: https://www.instagram.com/meglearnscanto/"
 )
 st.sidebar.write("## Upload and download")
 
