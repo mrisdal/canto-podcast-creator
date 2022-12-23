@@ -1,6 +1,8 @@
 import streamlit as st
 from datetime import date
+import PIL
 import os
+from PIL import Image
 import subprocess
 from streamlit_image_select import image_select
 
@@ -23,6 +25,13 @@ episode_name = "canto-{0}-video".format(date.today())
 st.write("## Step 1. Upload an audio file")
 audio_upload = st.file_uploader("The uploader expects an m4a file", type=["m4a"])
 
+# Make sure all of the background images are 512x512
+for path in os.listdir(background_input_path):
+    background = background_input_path + path
+    image = Image.open(background)
+    image = image.resize((512,512))
+    image.save(background)
+
 # Select a background image
 st.write("## Step 2. Choose a background image")
 
@@ -38,14 +47,6 @@ for path in os.listdir(background_input_path):
 selected_image = image_select("Background choices", backgrounds)
 st.write(selected_image)
 
-# Get dimensions of the selected background image
-selected_image_width = subprocess.run(f'ffprobe -v error -select_streams v:0 -show_entries stream=width -of csv=s=x:p=0 {selected_image}', stdout=subprocess.PIPE)
-selected_image_width = selected_image_width.stdout.decode('utf-8').strip()
-
-selected_image_height = subprocess.run(f'ffprobe -v error -select_streams v:0 -show_entries stream=height -of csv=s=x:p=0 {selected_image}', stdout=subprocess.PIPE)
-selected_image_height = selected_image_height.stdout.decode('utf-8').strip()
-#st.write(selected_image_width)
-
 # Function to download the uploaded audio file
 def save_uploaded_audio(audio_file):
     # Read in the uploaded file
@@ -55,10 +56,10 @@ def save_uploaded_audio(audio_file):
 # Function to process an audio file to add waveform to background image creating a video
 def create_podcast(audio_upload):
     # Create waveform
-    os.system(f'ffmpeg -i ./input/audio/{audio_upload} -filter_complex "[0:a]showwaves=s={str(selected_image_width)}x{str(int(0.5 * int(selected_image_height)))}:mode=cline:colors=White@0.9|Black@0.75:draw=full:scale=sqrt,format=rgba[v]" -map "[v]" -map 0:a -c:v png -y {waveform}')
+    os.system(f'ffmpeg -i ./input/audio/{audio_upload} -filter_complex "[0:a]showwaves=s=512x200:mode=cline:colors=White@0.9|Black@0.75:draw=full:scale=sqrt,format=rgba[v]" -map "[v]" -map 0:a -c:v png -y {waveform}')
     
     # Put the waveform video on top of the selected background image
-    os.system(f'ffmpeg -i {selected_image} -i {waveform} -filter_complex "[0:v][1:v] overlay=0:{str(int(0.5 * int(selected_image_height)))}" -pix_fmt yuv420p -c:a copy -y ./output/{episode_name}.mp4')
+    os.system(f'ffmpeg -i {selected_image} -i {waveform} -filter_complex "[0:v][1:v] overlay=0:250" -pix_fmt yuv420p -c:a copy -y ./output/{episode_name}.mp4')
     
     # Display the video and make it available for download
     podcast = open("./output/{}.mp4".format(episode_name), 'rb')
