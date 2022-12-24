@@ -45,7 +45,7 @@ for path in os.listdir(background_input_path):
 
 # Image selector widget
 selected_image = image_select("Background choices", backgrounds)
-st.write(selected_image)
+#st.write(selected_image)
 
 # Function to download the uploaded audio file
 def save_uploaded_audio(audio_file):
@@ -82,4 +82,5 @@ if audio_upload is not None:
     save_uploaded_audio(audio_upload)
     create_podcast(audio_upload="upload.m4a")
 else:
-    create_podcast("./input/audio/canto-2022-12-21-audio.m4a")
+    create_podcast("./input/audio/test.m4a")
+    #st.write("Upload an audio file to create a video")
