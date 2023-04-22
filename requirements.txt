@@ -1,1 +1,2 @@
 streamlit-image-select==0.5.1
+stability_sdk
